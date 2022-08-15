@@ -1,0 +1,5 @@
+//Procedemos a abrir la terminal y ejecutar el siguiente comando 
+
+sudo apt install apache2
+
+
