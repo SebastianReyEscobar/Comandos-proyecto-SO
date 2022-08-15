@@ -1,5 +1,94 @@
+Primer Paso: Instalación de Apache
 //Procedemos a abrir la terminal y ejecutar el siguiente comando 
 
 sudo apt install apache2
+
+
+Segundo paso: Configuración del Docker Compose
+
+Procedemos a abrir la terminal y ejecutar los comandos que compartió el profesor para ejecutar la aplicación:
+
+  1. apt install docker.io (primeramente, instalamos las herramientas de docker)
+
+  2. export CLOUDSDK_PYTHON=/usr/bin/python2
+
+  3. nano script.sh (cuando se abra el editor copiamos lo siguiente)
+  
+  4.    #!/usr/bin/env bash
+      CURRENT_WORKDIR=$(pwd)
+      FILE_ID="1EH1zS1wQ_5WmvUEar2eXcB4QMj1Mo49g"
+      FILENAME="docker-compose-example.tgz"
+      mkdir example && cd example
+      wget --no-check-certificate "https://docs.google.com/uc?export=download&id=${FILE_ID}" -O ${FILENAME}
+      tar xfz ${FILENAME}
+      cd ${CURRENT_WORKDIR}
+      
+  5. chmod +x script.sh && ./script.sh
+  
+  6. cd example (accedemos al directorio “example”)
+  
+  7. nano docker-compose.yml (abrimos el archivo de configuración del docker compose y lo editamos a conveniencia para que se escuche en el puerto 8000 y que escuche        la imagen de nginx)
+
+  8.   version: "3.3"
+      services:
+        web:
+          build: .
+          ports:
+            - "8000:5000"
+        redis:
+          image: "redis:alpine"
+          
+   9. docker-compose up (se ejecuta el contenedor)
+
+   Tercer paso: Instalación de Nginx y configuración del del Nginx
+    
+   1. sudo apt install nginx (primeramente, instalamos el Nginx)
+
+	 2. systemctl start nginx (iniciamos el servidor)
+ 
+   3. systemctl status nginx (verificamos el estado “running” del servidor)
+
+   4. sudo vim /etc/nginx/sites-available/proxy (configuramos el Nginx como proxy reverso en una especie de plantilla)
+   
+   5. server {
+      listen 80;
+
+      server_name midominio.com;
+
+      location / {	
+          proxy_pass http://miurl.internal:port;
+      }
+    }
+    
+    6. cp -v/etc/nginx/sites-available/proxy /etc/nginx/sites-available/nginx (agregamos un nuevo sitio basándonos en nuestra plantilla, en este caso lo llamamos              nginx)
+    7. sudo vim /etc/nginx/sites-available/nginx (actualizamos nuestro sitio nuevo y lo configuramos hacia nuestras otras máquinas virtuales)
+    
+    8. server
+      {
+
+      listen 80;
+
+      server_name 192.168.1.4;
+
+      location /apache {
+
+      proxy_pass http://192.168.1.6;
+      }
+
+      location /compose/ {
+
+      proxy_pass http://192.168.1.7:8000/;
+
+      }
+
+      }
+      
+     8. ln -s /etc/nginx/sites-available/nginx /etc/nginx/sites-enabled/nginx (habilitamos el sitio que acabamos de crear)
+
+     9. systemctl reload nginx (refrescamos las configuraciones que acabamos de hacer)
+
+
+    
+
 
 
